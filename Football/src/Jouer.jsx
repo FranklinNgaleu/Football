@@ -62,7 +62,6 @@ const Jouer = () => {
   
   return (
     <>
-      
       <div style={{ display: 'bloc', justifyContent: 'center', alignItems: 'center', height: '15vh' }}>
         <div>
           <h2>Les matchs de Ligue des Champions</h2>

@@ -25,7 +25,7 @@ const NonJouer = () => {
       const currentDate = new Date();
       const filteredResults = response.data.matches.filter((match) => {
         const matchDate = new Date(match.utcDate);
-        return matchDate >= currentDate;
+        return matchDate > currentDate;
       });
       setResults(filteredResults);
     })
@@ -62,7 +62,6 @@ const NonJouer = () => {
   
   return (
     <>
-      
       <div style={{ display: 'bloc', justifyContent: 'center', alignItems: 'center', height: '15vh' }}>
         <div>
           <h2>Les matchs de Ligue des Champions</h2>

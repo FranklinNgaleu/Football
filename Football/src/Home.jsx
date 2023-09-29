@@ -1,14 +1,14 @@
-import { useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
+//import { MatchContext } from './context/MatchContext'
 
 
-
-const FootballResults = () => {
+const Home = () => {
   const [results, setResults] = useState([]);
   const [teamSearchTerm, setTeamSearchTerm] = useState('');
-  //const [selectedMatch, setSelectedMatch] = useState(null);
- 
-  
+  const [favoriteMatches, setFavoriteMatches] = useState([]);
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+
 
 
   useEffect(() => {
@@ -20,10 +20,8 @@ const FootballResults = () => {
         'X-Auth-Token': apiKey,
       },
     })
-    
     .then((response) => {
-      setResults(response.data.matches); // Mettez à jour l'état avec les résultats des matchs
-
+      setResults(response.data.matches);
     })
     .catch((error) => {
       console.error(error);
@@ -31,7 +29,6 @@ const FootballResults = () => {
   }, []);
 
   const handleSearchByTeam = () => {
-    // Filtrer les résultats en fonction du nom de l'équipe saisi
     const filteredResults = results.filter((match) => {
       return (
         match.homeTeam.name.toLowerCase().includes(teamSearchTerm.toLowerCase()) ||
@@ -41,13 +38,24 @@ const FootballResults = () => {
     setResults(filteredResults);
   };
 
+  const addToFavorites = (matchToAdd) => {
+    if (!favoriteMatches.some((match) => match.id === matchToAdd.id)) {
+      setFavoriteMatches([...favoriteMatches, matchToAdd]);
+    }
+  };
+
+  const removeFromFavorites = (matchToRemove) => {
+    const updatedFavorites = favoriteMatches.filter((match) => match.id !== matchToRemove.id);
+    setFavoriteMatches(updatedFavorites);
+  };
+  
+  
   
   return (
     <>
-      
-      <div style={{ display: 'bloc', justifyContent: 'center', alignItems: 'center', height: '1500vh' }}>
+      <div style={{ display: 'bloc', justifyContent: 'center', alignItems: 'center', height: '15vh' }}>
         <div>
-          <h2>Résultats des matchs de Ligue des Champions</h2>
+          <h2>Les matchs de Ligue des Champions</h2>
           <input
             type="text"
             placeholder="Rechercher un match par équipe"
@@ -56,22 +64,33 @@ const FootballResults = () => {
             style={{ border: '1px solid #ccc', padding: '10px', margin: '10px', borderRadius: '5px', width: '300px' }}
           />
           <button onClick={handleSearchByTeam}  style={{ border: '1px solid #ccc', padding: '5px', margin: '8px', borderRadius: '5px', width: '100px' }}>Rechercher</button>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {results.map((match) => (
+          <button onClick={() => setShowOnlyFavorites(!showOnlyFavorites)} style={{ border: '1px solid #ccc', padding: '5px', margin: '8px', borderRadius: '5px', width: '100px' }}>
+            {showOnlyFavorites ? 'Tous les matchs' : 'Favoris'}
+          </button>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {showOnlyFavorites
+          ? favoriteMatches.map((match) => (
+              <div key={match.id} style={{ border: '1px solid #ccc', padding: '10px', margin: '10px', borderRadius: '5px', width: '300px' }}>
+                <p>{(match.utcDate).slice(0, 10)} - {(match.utcDate).slice(11, -1)}</p>
+                <h3>{match.homeTeam.name} vs {match.awayTeam.name}</h3>
+                <p>Score: {match.score.fullTime.home} - {match.score.fullTime.away}</p>
+                <button onClick={() => removeFromFavorites(match)} className='absolute bottom-0 inset-x-9'>Supprimer</button>
+              </div>
+            ))
+          : results.map((match) => (
               <div key={match.id} style={{ border: '1px solid #ccc', padding: '10px', margin: '10px', borderRadius: '5px', width: '300px' }}>
                 <p>{(match.utcDate).slice(0,10)} - {(match.utcDate).slice(11,-1)}</p>
                 <h3>{match.homeTeam.name} vs {match.awayTeam.name}</h3>
                 <p>Score: {match.score.fullTime.home} - {match.score.fullTime.away}</p>
-                
-                {/* Ajoutez d'autres détails du match si nécessaire */}
+                <button onClick={() => addToFavorites(match)} className='absolute bottom-0 inset-x-9'>Ajouter a mes matchs</button>
               </div>
-              
             ))}
-          </div>
-        </div>
       </div>
+
     </>
   );
 };
 
-export default FootballResults;
+export default Home;
